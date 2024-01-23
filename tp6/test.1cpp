@@ -1,0 +1,90 @@
+#include <iostream>
+
+
+class M {
+ public:  
+  M() {
+    std::cout << "M::M()" << std::endl;
+  }
+   ~M() {
+    std::cout << "M::~M()" << std::endl;
+  }
+    M(const M&) {
+    std::cout << "M::M(const M&)" << std::endl;
+  }
+  
+  M& operator=(const M& o)
+  {
+    std::cout << "M::operator=(const M&)" << std::endl;
+    return *this;     
+  }
+};
+
+class A {
+    M m;
+ public:  
+  A() {
+    std::cout << "A::A()" << std::endl;
+  }
+   ~A() {
+    std::cout << "A::~A()" << std::endl;
+  }
+    A(const A&):m(m) {
+    std::cout << "A::A(const A&)" << std::endl;
+  }
+  
+  A& operator=(const A& o)
+  {
+    std::cout << "A::operator=(const A&)" << std::endl;
+    return *this;     
+  }
+};
+
+class F : public M {
+ public:
+  F() {
+    std::cout << "F::F()" << std::endl;
+  }  
+~F() {
+    std::cout << "F::~F()" << std::endl;
+  }
+ 
+  F(const F& f):M(f) {
+    std::cout << "F::F(const F&)" << std::endl;
+  } 
+
+  F& operator=(const F& o)
+  {
+    M::operator=(o);
+    std::cout << "F::operator=(const F&)" << std::endl;
+    return *this;
+  } 
+};
+
+int main(int, char**) {
+
+  F f1;
+  F f2 = f1; // Le constructeur de copie par défaut de F a appelé le contructeur de copie de M
+  // SI on decommente le contructeur par copie de F, le constructeur de copie de M n'est plus appelé
+  // SI on veut que le constructeur par copie de M soit appelé, il faut faire un appel explicite dans le constructeur de copie de F
+  f1 = f2;
+
+  // SI on definit operator=() dans F, operator=() de M n'est plus appelé 
+
+  std::cout << "Classe A" << std::endl;
+  A a1;
+  A a2(a1);
+  /**
+   * a1 :
+     M::M()
+     A::A()
+     
+     a2 : 
+     M::M()
+     A::A(const A&)
+  */
+
+  // Pour que la copie soit correctement faite : il faut rajouter un appel explicite (liste d'initialisation) pour construire m.
+
+  return 0;
+}
